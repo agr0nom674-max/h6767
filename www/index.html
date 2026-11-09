@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>frieren</title>
+<meta name="theme-color" content="#1f3a5f">
+<style>
+:root{
+  --accent:#ff8a3d; --panel:.55; --blur:14px; --dim:.25; --fs:16px;
+  --wall:linear-gradient(160deg,#1f3a5f,#5b2a6e 60%,#c2476b);
+  --ink:#fff; --ink2:rgba(255,255,255,.72);
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font:var(--fs)/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:#111;overflow:hidden}
+#wall{position:fixed;inset:0;background:var(--wall) center/cover no-repeat;z-index:0}
+#wall::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,var(--dim))}
+#app{position:relative;z-index:1;height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column}
+main{flex:1;overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 14px 12px}
+.glass{background:rgba(20,20,28,var(--panel));backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid rgba(255,255,255,.12);border-radius:16px}
+h1{font:600 1.7em/1.1 Georgia,"Times New Roman",serif;letter-spacing:-.01em}
+h2{font:600 1.05em/1.2 Georgia,serif;margin-bottom:8px}
+.sub{color:var(--ink2);font-size:.88em}
+.head{display:flex;justify-content:space-between;align-items:flex-end;margin:6px 2px 12px}
+.week{display:flex;gap:6px;margin-bottom:12px}
+.week button{flex:1;padding:8px 0;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(20,20,28,var(--panel));backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));color:var(--ink);font:inherit;cursor:pointer}
+.week button b{display:block;font:600 1.15em Georgia,serif}
+.week button span{font-size:.72em;color:var(--ink2)}
+.week button.on{background:var(--accent);border-color:var(--accent);color:#1a1a1a}
+.week button.on span{color:#1a1a1acc}
+.nav{display:flex;gap:6px}
+.nav button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--ink);font-size:1.1em;cursor:pointer}
+.lesson{display:grid;grid-template-columns:54px 1fr;gap:10px;padding:12px;margin-bottom:8px}
+.time{border-right:2px solid var(--accent);padding-right:8px;text-align:right}
+.time b{display:block;font:600 1.1em Georgia,serif}
+.time span{font-size:.72em;color:var(--ink2)}
+.lesson h3{font-size:1em;font-weight:600}
+.task{margin-top:6px;font-size:.9em;color:var(--ink2);display:flex;gap:8px;align-items:flex-start}
+.mark{flex:none;min-width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:.9em;color:#111;background:#ddd}
+.m5{background:#7fe3a1}.m4{background:#b7e36f}.m3{background:#ffd166}.m2{background:#ff7b7b}
+.subj{padding:12px;margin-bottom:8px}
+.subj .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.avg{font:600 1.3em Georgia,serif}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.empty{padding:24px;text-align:center;color:var(--ink2)}
+.tabs{display:flex;padding:6px 10px max(10px,env(safe-area-inset-bottom));gap:6px}
+.tabs button{flex:1;padding:10px 0;border-radius:14px;border:0;background:rgba(20,20,28,var(--panel));backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));color:var(--ink2);font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--accent);color:#1a1a1a}
+button:focus-visible,input:focus-visible,label:focus-within{outline:2px solid #fff;outline-offset:2px}
+.set{padding:14px;margin-bottom:10px}
+.set label.r{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0 2px;font-size:.92em}
+.set input[type=range]{flex:1;accent-color:var(--accent)}
+.walls{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 10px}
+.walls button{aspect-ratio:3/4;border-radius:12px;border:2px solid transparent;cursor:pointer}
+.walls button.on{border-color:#fff}
+.swatches{display:flex;gap:10px;margin-top:6px}
+.swatches button{width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.swatches button.on{border-color:#fff}
+.btn{display:inline-block;padding:10px 14px;border-radius:12px;border:0;background:var(--accent);color:#1a1a1a;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.3)}
+input[type=text],input[type=password]{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.35);color:var(--ink);font:inherit;margin:4px 0 8px}
+.note{font-size:.82em;color:var(--ink2);margin-top:6px}
+.err{color:#ffb4b4}
+@media (prefers-reduced-motion:no-preference){.lesson,.subj{transition:transform .15s}.lesson:active{transform:scale(.99)}}
+</style>
+</head>
+<body>
+<div id="wall"></div>
+<div id="app">
+  <main id="view"></main>
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<script src="netschool.js"></script>
+<script>
+/* ---------- Состояние (хранится только в памяти) ---------- */
+const WALLS = [
+  "linear-gradient(160deg,#1f3a5f,#5b2a6e 60%,#c2476b)",
+  "linear-gradient(160deg,#0f2027,#203a43 55%,#2c5364)",
+  "linear-gradient(160deg,#2b1055,#7597de)",
+  "linear-gradient(160deg,#232526,#414345)"
+];
+const ACCENTS = ["#ff8a3d","#7fe3a1","#6ec1ff","#ff7eb6","#ffd166"];
+const MAX_LESSONS = 9;
+const DAYS = ["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
+const MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+
+const S = {
+  tab: "diary", weekStart: mondayOf(addDays(new Date(), new Date().getDay()===0 ? 1 : 0)), selected: null,
+  data: null, source: "demo", error: "",
+  wall: 0, photo: "", accent: 0, panel: .55, blur: 14, dim: .25, fs: 16,
+  needLogin: false, loginErr: "", busy: false, diag: false, form: { url: "https://asurso.ru", school: "МБОУ «Школа № 132» г.о.Самара", user: "", row: null }, found: null, finding: false
+};
+const IS_NATIVE = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+S.source = IS_NATIVE ? "real" : "demo";
+let NSC = null;
+
+/* Пароль хранится в защищённом хранилище Android (Keystore). Остальное: адрес, школа, логин: в обычной памяти приложения. */
+const Vault = {
+  async get(k){ try{ return (await Capacitor.Plugins.SecureStoragePlugin.get({key:k})).value; }catch(e){ return null; } },
+  async set(k,v){ try{ await Capacitor.Plugins.SecureStoragePlugin.set({key:k,value:v}); return true; }catch(e){ return false; } },
+  async del(k){ try{ await Capacitor.Plugins.SecureStoragePlugin.remove({key:k}); }catch(e){} }
+};
+function getAcct(){ try{ return JSON.parse(localStorage.getItem("md.acct")||"null"); }catch(e){ return null; } }
+async function autoLogin(){
+  const a=getAcct(), pw=a&&await Vault.get("md.pw");
+  if(!a||!pw) return false;
+  try{ const c=new NS.NetSchool(a.url); NSC=c; await c.login(a.user,pw,a.school,a.row); return true; }
+  catch(e){ S.loginErr=e.message; NSC=null; return false; }
+}
+
+/* Сохранение оформления на устройстве (localStorage; в предпросмотре Claude недоступно, в браузере работает) */
+function savePrefs(){ try{ localStorage.setItem("md.prefs",JSON.stringify({wall:S.wall,accent:S.accent,panel:S.panel,blur:S.blur,dim:S.dim,fs:S.fs})); }catch(e){} }
+function loadPrefs(){ try{ const p=JSON.parse(localStorage.getItem("md.prefs")||"null"); if(p) Object.assign(S,p); S.photo=localStorage.getItem("md.photo")||""; if(S.wall===-1&&!S.photo) S.wall=0; }catch(e){} }
+
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0); const k=(x.getDay()+6)%7; x.setDate(x.getDate()-k); return x; }
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- Источники данных ---------- */
+/* Демо: выдуманные данные, чтобы можно было оценить оформление. */
+function demoWeek(start){
+  /* Пн–Сб, не больше 9 уроков в день */
+  const T=[["08:30","09:15"],["09:25","10:10"],["10:25","11:10"],["11:25","12:10"],["12:25","13:10"],["13:25","14:10"],["14:20","15:05"],["15:15","16:00"],["16:10","16:55"]];
+  const plan=[
+    [["Алгебра","214","Номера 312–318","5"],["Литература","108","Выучить отрывок",""],["Физика","305","Параграф 24","4"],["Английский","112","Упражнение 6",""],["История","210","",""],["Химия","301","",""],["Физкультура","Зал","",""]],
+    [["Геометрия","214","Задачи 45, 46",""],["История","210","Конспект параграфа 12","4"],["Химия","301","",""],["Физкультура","Зал","",""],["Биология","302","Таблица в тетради",""],["Информатика","220","",""]],
+    [["Алгебра","214","Самостоятельная работа","5"],["Биология","302","",""],["Русский язык","106","Упражнение 144","3"],["Литература","108","",""],["Физика","305","",""],["Английский","112","Слова",""],["География","208","",""],["ОБЖ","211","",""],["Классный час","106","",""]],
+    [["Физика","305","Лабораторная работа","4"],["Информатика","220","Практическая №7",""],["География","208","Контурная карта",""],["Английский","112","","5"],["Алгебра","214","",""],["Русский язык","106","",""],["История","210","",""],["Химия","301","",""]],
+    [["Литература","108","Сочинение",""],["Алгебра","214","Номера 330–334",""],["ОБЖ","211","",""],["Геометрия","214","",""],["Биология","302","",""],["Физкультура","Зал","",""],["Английский","112","",""]],
+    [["Русский язык","106","Упражнение 150",""],["Алгебра","214","","4"],["Физика","305","",""],["Информатика","220","",""],["Классный час","106","",""]]
+  ];
+  return { days: plan.map((ls,i)=>({ date: iso(addDays(start,i)), lessons: ls.slice(0,9).map((l,j)=>({
+    number:j+1, start:T[j][0], end:T[j][1], subject:l[0], room:l[1],
+    assignments:[ ...(l[2]?[{text:l[2],mark:null,type:"Домашнее задание"}]:[]), ...(l[3]?[{text:"",mark:+l[3],type:"Оценка"}]:[]) ]
+  }))})) };
+}
+
+/* Мост: маленькая программа на вашем устройстве (bridge.py), которая входит в
+   школьный дневник под вашим логином. Этот файл логин и пароль не видит. */
+async function realWeek(start){
+  const args=[iso(start),iso(addDays(start,6))];
+  try{ return await NSC.diary(...args); }
+  catch(e){ if(e.status!==401) throw e; if(!(await autoLogin())) throw new Error("сессия истекла, войдите снова"); return NSC.diary(...args); }
+}
+
+async function load(){
+  S.error="";
+  try{
+    if(S.source==="real"){
+      if(!NSC && !(await autoLogin())){ S.needLogin=true; render(); return; }
+      S.needLogin=false; S.data = await realWeek(S.weekStart);
+    } else S.data = demoWeek(S.weekStart);
+  }catch(e){
+    S.error = "Не удалось загрузить дневник: "+e.message+". Показываю демо-данные.";
+    S.source="demo"; S.data=demoWeek(S.weekStart);
+  }
+  if(!S.selected || !S.data.days.some(d=>d.date===S.selected)){
+    const today=iso(new Date());
+    S.selected = S.data.days.some(d=>d.date===today) ? today : (S.data.days[0]?.date||null);
+  }
+  render();
+}
+
+/* ---------- Оформление ---------- */
+function applyTheme(){
+  const r=document.documentElement.style;
+  r.setProperty("--accent",ACCENTS[S.accent]); r.setProperty("--panel",S.panel);
+  r.setProperty("--blur",S.blur+"px"); r.setProperty("--dim",S.dim); r.setProperty("--fs",S.fs+"px");
+  if(S.wall>=0) r.setProperty("--wall",WALLS[S.wall]);
+  else if(S.photo) r.setProperty("--wall",`url(${S.photo})`);
+  savePrefs();
+}
+function pickPhoto(file){
+  if(!file) return;
+  const img=new Image(), url=URL.createObjectURL(file);
+  img.onload=()=>{ /* уменьшаем фото, чтобы приложение не тормозило */
+    const k=Math.min(1,1280/Math.max(img.width,img.height));
+    const c=document.createElement("canvas"); c.width=img.width*k; c.height=img.height*k;
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    S.photo=c.toDataURL("image/jpeg",.8); try{ localStorage.setItem("md.photo",S.photo); }catch(e){}
+    S.wall=-1; URL.revokeObjectURL(url); render();
+  };
+  img.src=url;
+}
+
+/* ---------- Экраны ---------- */
+function viewDiary(){
+  const d=S.data; if(!d) return `<div class="empty">Загрузка…</div>`;
+  const ws=S.weekStart, we=addDays(ws,5);
+  const range=`${ws.getDate()} ${MONTHS[ws.getMonth()]} – ${we.getDate()} ${MONTHS[we.getMonth()]}`;
+  const strip=d.days.map(x=>{ const dt=new Date(x.date+"T00:00"); return `<button class="${x.date===S.selected?"on":""}" data-day="${x.date}"><span>${DAYS[dt.getDay()]}</span><b>${dt.getDate()}</b></button>`; }).join("");
+  const day=d.days.find(x=>x.date===S.selected);
+  const LS=day?day.lessons.slice().sort((x,y)=>(x.number||0)-(y.number||0)).slice(0,MAX_LESSONS):[];
+  const lessons=LS.length ? LS.map(l=>{
+    const tasks=(l.assignments||[]).map(a=>`<div class="task">${a.mark?`<span class="mark m${a.mark}">${a.mark}</span>`:""}<span>${esc(a.text||a.type)}</span></div>`).join("");
+    return `<article class="glass lesson"><div class="time"><b>${esc(l.start)}</b><span>${esc(l.end)}</span></div><div><h3>${esc(l.subject)}</h3><div class="sub">${l.room?"каб. "+esc(l.room):""}</div>${tasks}</div></article>`;
+  }).join("") : `<div class="glass empty">В этот день уроков нет.</div>`;
+  return `<div class="head"><div><h1>Дневник</h1><div class="sub">${range}${S.source==="demo"?" · демо-данные":""}</div></div>
+    <div class="nav"><button data-week="-1" aria-label="Прошлая неделя">‹</button><button data-week="1" aria-label="Следующая неделя">›</button></div></div>
+    ${S.error?`<div class="glass set err">${esc(S.error)}</div>`:""}
+    <div class="week">${strip}</div>${lessons}`;
+}
+
+function viewMarks(){
+  if(!S.data) return `<div class="empty">Загрузка…</div>`;
+  const by={};
+  S.data.days.forEach(day=>day.lessons.forEach(l=>(l.assignments||[]).forEach(a=>{ if(a.mark){ (by[l.subject]??=[]).push(a.mark);} })));
+  const names=Object.keys(by).sort();
+  const body=names.length?names.map(n=>{ const m=by[n], avg=(m.reduce((a,b)=>a+b,0)/m.length).toFixed(2);
+    return `<article class="glass subj"><div class="row"><h2 style="margin:0">${esc(n)}</h2><span class="avg">${avg}</span></div><div class="chips">${m.map(x=>`<span class="mark m${x}">${x}</span>`).join("")}</div></article>`; }).join("")
+    : `<div class="glass empty">На этой неделе оценок нет.</div>`;
+  return `<div class="head"><div><h1>Оценки</h1><div class="sub">за выбранную неделю</div></div></div>${body}`;
+}
+
+function viewLogin(){
+  const f=S.form, a=getAcct()||{}; 
+  const v=(x,d)=>esc(x||d||"");
+  return `<div class="head"><div><h1>Вход</h1><div class="sub">Школьный дневник</div></div></div>
+  <section class="glass set">
+    <label class="sub" for="lu">Адрес дневника (со страницы входа)</label>
+    <input type="text" id="lu" inputmode="url" autocapitalize="off" placeholder="https://..." value="${v(f.url,a.url)}">
+    <label class="sub" for="ls">Название школы</label>
+    <input type="text" id="ls" value="${v(f.school,a.school)}">
+    <button class="btn ghost" id="findSchool" ${S.finding?"disabled":""}>${S.finding?"Ищем…":"Найти школу"}</button>
+    ${S.found?(S.found.length?`<div class="chips" style="flex-direction:column;margin:8px 0">${S.found.slice(0,8).map((r,i)=>`<button class="btn ghost" style="text-align:left" data-pick="${i}">${esc(r.name)}${r.address?`<br><span class="sub">${esc(r.address)}</span>`:""}</button>`).join("")}</div>`:`<p class="note">Ничего не найдено. Введите часть названия, например номер школы.</p>`):""}
+    ${S.form.row?`<p class="note">Выбрана школа: ${esc(S.form.row.name)}</p>`:""}
+    <label class="sub" for="ln">Логин</label>
+    <input type="text" id="ln" autocapitalize="off" autocomplete="username" value="${v(f.user,a.user)}">
+    <label class="sub" for="lp">Пароль</label>
+    <input type="password" id="lp" autocomplete="current-password">
+    <button class="btn" id="doLogin" ${S.busy?"disabled":""}>${S.busy?"Входим…":"Войти"}</button>
+    <button class="btn ghost" id="demo">Демо</button>
+    ${S.loginErr?`<p class="note err">${esc(S.loginErr)}</p>`:""}
+    ${IS_NATIVE?"":`<p class="note">Вход работает только в установленном приложении для Android: браузер не пускает страницу на школьный сервер.</p>`}
+    <p class="note">Пароль хранится в защищённом хранилище Android на этом телефоне и отправляется только на сервер вашей школы.</p>
+    ${NSC&&S.diag||S.loginErr?`<pre class="note" style="white-space:pre-wrap">${esc((NSC?NSC.log:[]).join("\n"))}</pre>`:""}
+  </section>`;
+}
+
+function viewStyle(){
+  return `<div class="head"><div><h1>Оформление</h1><div class="sub">Всё меняется сразу</div></div></div>
+  <section class="glass set"><h2>Обои</h2>
+    <div class="walls">${WALLS.map((w,i)=>`<button style="background:${w}" data-wall="${i}" class="${S.wall===i?"on":""}" aria-label="Обои ${i+1}"></button>`).join("")}</div>
+    <label class="btn ghost">Своё фото<input type="file" accept="image/*" id="photo" hidden></label>
+    <label class="r">Затемнение <input type="range" min="0" max="80" value="${S.dim*100}" data-k="dim"></label>
+  </section>
+  <section class="glass set"><h2>Панели и цвет</h2>
+    <label class="r">Прозрачность <input type="range" min="10" max="95" value="${S.panel*100}" data-k="panel"></label>
+    <label class="r">Размытие <input type="range" min="0" max="30" value="${S.blur}" data-k="blur"></label>
+    <label class="r">Размер текста <input type="range" min="14" max="20" value="${S.fs}" data-k="fs"></label>
+    <div class="swatches">${ACCENTS.map((c,i)=>`<button style="background:${c}" data-accent="${i}" class="${S.accent===i?"on":""}" aria-label="Цвет ${i+1}"></button>`).join("")}</div>
+  </section>
+  <section class="glass set"><h2>Данные</h2>
+    <div class="sub">Сейчас: ${S.source==="real"?"ваш дневник"+(getAcct()?" ("+esc(getAcct().user)+")":""):"демо-данные"}</div>
+    <button class="btn" id="connect">Мой дневник</button>
+    <button class="btn ghost" id="demo">Демо</button>
+    <button class="btn ghost" id="diagbtn">Диагностика</button>
+    <button class="btn ghost" id="logout">Выйти и забыть пароль</button>
+    ${S.diag?`<pre class="note" style="white-space:pre-wrap">${esc(NSC?NSC.log.join("\n"):"Входа ещё не было")}</pre>`:""}
+  </section>`;
+}
+
+function render(){
+  const v=document.getElementById("view");
+  v.innerHTML = S.needLogin?viewLogin():S.tab==="diary"?viewDiary():S.tab==="marks"?viewMarks():viewStyle();
+  document.getElementById("tabs").innerHTML=S.needLogin?"":[["diary","Дневник"],["marks","Оценки"],["style","Оформление"]]
+    .map(([k,t])=>`<button data-tab="${k}" class="${S.tab===k?"on":""}">${t}</button>`).join("");
+  applyTheme();
+}
+
+function readForm(){
+  const g=id=>{ const e=document.getElementById(id); return e?e.value.trim():""; };
+  const school=g("ls"); const row=S.form.row&&S.form.row.name===school?S.form.row:null;
+  S.form={url:g("lu")||S.form.url,school,user:g("ln")||S.form.user,row};
+}
+async function findSchool(){
+  readForm();
+  if(!S.form.url||!S.form.school){ S.loginErr="Введите адрес дневника и часть названия школы"; return render(); }
+  S.finding=true; S.loginErr=""; S.found=null; render();
+  try{ const c=new NS.NetSchool(S.form.url); NSC=c; S.found=await c.searchSchools(S.form.school); }
+  catch(e){ S.loginErr=e.message+(IS_NATIVE?"":" (в браузере поиск невозможен)"); }
+  S.finding=false; render();
+}
+async function doLogin(){
+  readForm(); const pass=document.getElementById("lp").value;
+  if(!S.form.url||!S.form.school||!S.form.user||!pass){ S.loginErr="Заполните все поля"; return render(); }
+  S.busy=true; S.loginErr=""; render();
+  try{
+    const c=new NS.NetSchool(S.form.url); NSC=c; await c.login(S.form.user,pass,S.form.school,S.form.row);
+    try{ localStorage.setItem("md.acct",JSON.stringify({url:c.origin,school:S.form.school,user:S.form.user,row:S.form.row})); }catch(e){}
+    const saved=await Vault.set("md.pw",pass);
+    S.busy=false; S.needLogin=false; S.source="real"; S.tab="diary";
+    if(!saved) S.error="Пароль не удалось сохранить в защищённом хранилище: при следующем запуске войдите снова.";
+    load();
+  }catch(e){ S.busy=false; S.loginErr=e.message+(IS_NATIVE?"":" (в браузере вход невозможен)"); render(); }
+}
+async function logout(){
+  await Vault.del("md.pw"); try{ localStorage.removeItem("md.acct"); }catch(e){}
+  NSC=null; S.source="real"; S.data=null; S.form={url:"https://asurso.ru",school:"МБОУ «Школа № 132» г.о.Самара",user:"",row:null}; S.found=null; S.needLogin=true; render();
+}
+
+/* ---------- События ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button"); if(!t) return;
+  if(t.dataset.tab){ S.tab=t.dataset.tab; render(); }
+  else if(t.dataset.day){ S.selected=t.dataset.day; render(); }
+  else if(t.dataset.week){ S.weekStart=addDays(S.weekStart,7*+t.dataset.week); S.selected=null; load(); }
+  else if(t.dataset.wall){ S.wall=+t.dataset.wall; render(); }
+  else if(t.dataset.accent){ S.accent=+t.dataset.accent; render(); }
+  else if(t.id==="connect"){ S.source="real"; S.tab="diary"; load(); }
+  else if(t.id==="doLogin"){ doLogin(); }
+  else if(t.id==="findSchool"){ findSchool(); }
+  else if(t.dataset.pick!==undefined){ const r=S.found[+t.dataset.pick]; S.form.school=r.name; S.form.row=r; S.found=null; render(); }
+  else if(t.id==="diagbtn"){ S.diag=!S.diag; render(); }
+  else if(t.id==="logout"){ logout(); }
+  else if(t.id==="demo"){ S.source="demo"; S.needLogin=false; S.tab="diary"; load(); }
+});
+document.addEventListener("input",e=>{
+  const k=e.target.dataset.k;
+  if(k){ const v=+e.target.value; S[k]= (k==="dim"||k==="panel")? v/100 : v; applyTheme(); }
+});
+document.addEventListener("change",e=>{ if(e.target.id==="photo") pickPhoto(e.target.files[0]); });
+
+loadPrefs();
+load();
+</script>
+</body>
+</html>
